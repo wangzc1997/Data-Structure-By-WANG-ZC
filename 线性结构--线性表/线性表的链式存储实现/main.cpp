@@ -134,7 +134,7 @@ List insert(List L, elementtype X, int i)
 在上述插入程序中，有一个问题，就是L，既作为函数参数，同时也作为函数返回值，保证新的L值能够被带回来。
 但是一旦遇上插入不成功的时候，return的就是NULL，L也变成了NULL，这就不对了。所以一个解决方法就是
 为链表新增一个空的”头结点“，真正的元素链接在这个空结点之后，这样的好处是，无论在哪里插入或者删除，L的值
-一直指向固定的空结点，不会改变，下面是带头结点的链式表的插入函数，时间复杂度为0(n)
+一直指向固定的空结点，不会改变，下面是"带头结点的链式表"的插入函数，时间复杂度为0(n)
 下面这个代码，就不存在插入头结点的问题了。
 */
 bool insert(List L, elementtype X, int i)  //之前是List，现在说bool
@@ -167,5 +167,53 @@ bool insert(List L, elementtype X, int i)  //之前是List，现在说bool
 //删除：在单向链表中删除指定位序i的元素，首先需要找到被删除结点的前一个元素，然后再删除结点并释放空间。 时间复杂度为0(n)
 bool delete(List L, int i)
 {
-    
+    //此时默认L有头结点,即有个空结点
+    Position tmp,pre;
+    int cnt = 0;
+
+    //查找位序为i-1的结点
+    pre = L;
+    while (pre && cnt < i-1)
+    {
+        pre = pre -> Next;
+        cnt ++;
+    }
+    if (pre == NULL || cnt != i-1 || pre->Next == NULL)
+    {
+        printf("删除位置参数错误\n");
+        return false;
+    }
+    else
+    {
+        //此时就是找到了前一个结点
+        tmp = pre->Next;
+        pre->Next = tmp->Next;
+        free(tmp;)
+        return true;
+    }
 }
+/*我们讨论的主要是以单向链表的形式存储线性表，这样的结构可以使每个结点找到其后继结点很容易，但要找到其前驱结点，必须要从头到尾遍历。
+如果我们需要前后查找都很容易，则可以采用双向链表表示，占用空间相对大些，因为每个结点都要用到两个指针域*/
+
+//广义表与多重链表
+//广义表：GList
+/*
+广义表中的结点可能有两种情况：
+1.单元素，需要有一个域来存储该单元素的值
+2.广义表，需要有一个域来指向另一个链表。 
+对于每个结点来说，上述两个域只可能需要其中的一种，所以可以用C语言中的共用体Union来实现这两个域的复用
+*/
+typedef struct GNode *PteToGNode;
+typedef PtrToGNode GList;
+struct GNode{
+    int Tag; //Tag标志域，0表示该结点是单元素；1表示该结点是广义表
+    union 
+    {
+        elementtype Data;
+        GList sublist; //子表指针域
+    } URegion;
+    
+    PtrToGNode Next;
+    
+};
+
