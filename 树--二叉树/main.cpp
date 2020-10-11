@@ -55,6 +55,25 @@ L代表左分支，V代表访问结点，L代表右分支。那么有6种不同�
 则剩下三种次序的遍历 LVR LRV VLR。按照V的位置，依次是中序遍历，后序遍历和先序遍历。
 */
 
+/*
+先序遍历：
+1.访问根结点
+2.先序遍历其左子树
+3.先序遍历其右子树
+代码如下：
+*/
+void PreorderTraversal(BinTree BT)
+{
+    if (BT)
+    {
+        printf("%d",BT->Data);
+        PreorderTraversal(BT->left);
+        PreorderTraversal(BT->right);
+    }
+    
+}
+
+
 /*中序遍历：
 1.中序遍历其左子树
 2.访问根结点
@@ -72,6 +91,28 @@ void InorderTraversal(BinTree BT)
         InorderTraversal(BT->right);
     }
 }
+
+/*
+后序遍历
+1.后序遍历其左子树
+2.后序遍历其右子树
+3.访问根结点
+代码如下：
+*/
+void PostorderTraversal(BinTree BT)
+{
+    if (BT)
+    {
+        PostorderTraversal(BT ->left);
+        PostorderTraversal(BT->right);
+        printf("%d",BT->Data); 
+    }
+    
+}
+//注意还是先搞左子树，再右子树，再访问根结点，左右顺序并没有变化，只是根结点的顺序变化
+
+
+
 /*
 若是用非递归的思想来做，则遍历实际上是：
 从树根结点开始，沿其左孩子域向下移动，直到某一结点再无左孩子为止，访问这个最左边的结点，接下来再从结点的右孩子结点开始进行中序遍历，
@@ -86,9 +127,9 @@ void InorderTraversal(BinTree BT)
     BinTree T;
     Stack S = CreatStack(); //创建堆栈S，元素类型是Bintree。
     T = BT; //从根结点出发
-    while (T || !isempty(S)) //当T非空，而且S是空的时候
+    while (T || !isempty(S)) //当T非空，而且S是非空的时候
     {
-        while (t)
+        while (T)
         {
             Push(S,T);
             T = T->left;
@@ -98,10 +139,181 @@ void InorderTraversal(BinTree BT)
         T = T->right;        
     }
 }
+//其实先序遍历的非递归遍历算法，可以把printf那一句挪到Push语句下面。
+
 
 /*
 层序遍历，除了先序、中序和后序遍历三种基本的 二叉树 遍历方法外，有时还用到二叉树的层序遍历。
 
-二叉树的层序遍历是
+二叉树的层序遍历是按照树的层次，从第一层的根结点开始向下逐层访问每个结点，在某一层中的结点是按照从左到右的顺序访问。
+先遇到的结点先访问，这与队列的操作逻辑是吻合的。
 
+具体算法实现，可以设置一个队列结构，遍历从根结点开始，首先将根结点入队，然后开始执行下面三个操作：
+1.从队列中取出一个元素
+2.访问该元素所指结点；
+3.若该元素所指结点的左右孩子结点非空，则将其左右孩子的指针顺序入队。
+
+下面是层序遍历的算法
+*/
+void LevelorderTraversal(BinTree BT)
+{
+    Queue Q;
+    BinTree T;
+
+    if (!BT)
+    {
+        return; //若是空树直接返回
+    }
+
+    Q = CreatQueue(); //创建空队列Q
+    AddQ(Q, BT);
+    while (!isempty(Q)) //Q非空
+    {
+        T = DeleteQ(Q); //从队列中删除一个结点
+        printf("%d", T->Data); //访问/输出队列的结点。
+        if (T->left)
+        {
+            AddQ(Q,T->left);
+        }
+        if (T->right)
+        {
+            AddQ(Q,T->right);
+        }
+    }
+}
+
+
+/*
+输出二叉树的所有叶结点
+其实就是一个有条件的遍历，我们要看一个结点是不是叶子结点，只要看其左右子树是否为空即可，所以只要在二叉树的遍历算法中增加检测条件就可以了。
+下面的叶子输出算法是在先序遍历的基础上修改的
+*/
+void PreorderLeaves(BinTree BT) //先序遍历基础上
+{
+    if (BT)
+    {
+        if (!BT->left && !BT->right)
+        {
+            printf("%d", BT->Data);
+        }
+        PreorderLeaves(BT->left);
+        PreorderLeaves(BT->right);
+    }
+}
+
+
+/*
+求二叉树的高度
+二叉树的高度计算公式为： Height = MAX{HL,HR}+1
+HL和HR就是左右子树的高度，所以需要利用后序遍历。 //根据定义，叶结点高度为1，所以空树高度为0
+下面算法就是用递归算法来做的，递归是真的舒服
+*/
+
+int GetHeight(BinTree BT)
+{
+    int HL,HR,MAXH;
+
+    if (BT)
+    {
+        HL = GetHeight(BT->left);
+        HR = GetHeight(BT->right);
+        MAXH = HL>HR?HL:HR;
+        return(MAXH+1);
+    }
+    else
+    {
+        return 0; //空树高度为0
+    }
+}
+
+/*
+可以把一个表达式写成一个树。为了方便，我们只考虑二元运算（一个运算符只作用于两个运算数）
+一个运算符夹在两个运算数中间的表达形式称为中缀表达式。
+由于每个运算符完成两个运算数的算数运算，因此用二叉树表示表达式是合适的，树的叶结点是运算数，可以是常量或变量名，树的非叶结点是运算符。
+表达式树的三种遍历可以得到三种不同的访问结果，基本对应中缀表达式、前缀表达式和后缀表达式。
+！！！由于不同运算存在优先级，表达式树的中序遍历结果并不一定是表达式所对应的中缀形式。（可以通过加括号来解决）
+实际上，有了表达式树后，可以按照后序遍历直接计算表达式。
+*/
+
+
+/*
+由两种遍历序列来确定二叉树。
+可以通过先序遍历序列和中序遍历序列来唯一确定一个二叉树。
+也可以通过后序遍历序列和中序遍历序列来唯一确定一个二叉树。
+因为我们要通过两种遍历交叉确定根结点是哪个，然后把左右子树分离开，进而依次类推。
+*/
+
+
+/*
+二叉树的创建
+
+由于树是非线性结果，创建一颗二叉树必须首先确定树中结点的输入顺序，常用的方法是先序创建和层序创建两种。
+层序创建所用的结点输入序列是按树的从上至下从左至右的顺序形成的，各层的空结点输入数值0，在构造二叉树的过程中，需要一个队列暂时存储
+各结点地址。
+创建二叉树的过程：
+1.在输入第一个数据时，
+若为0，则表示此树为空，将空指针赋给根指针，树构造完毕。
+若不为0，则动态分配一个结点单元，并存入数据，同时将该点地址放入队列。
+2.若队列不为空，则从队列中取出一个结点地址，并建立该结点的左右孩子：
+从输入序列中读入下一个数据：
+若读入的数据为0，将出队结点的左孩子指针置空；否则，分配一个结点单元，存入所读数值，并将其置为出队结点的左孩子，同时将此孩子地址入队；
+接着再从输入序列中读入下一个数据：
+若读入的数据为0，将出队结点的右孩子指针置空；否则，分配一个结点，存入所读数值，并将其置为出队结点的右孩子，同时将此孩子地址入队。
+3.重复第二个步骤，直到队列为空，再无结点出队，构造过程到此结束。
+下面是上述过程的代码：
+*/
+typedef int elementtype; //假设结点数据是整数
+#define Noinfo 0 //用0表示没有结点 
+
+BinTree CreatBinTree()
+{
+    elementtype Data;
+    BinTree BT, T;
+    Queue Q = CreatQueue(); //创建空队列
+
+    //建立第一个结点，即根结点
+    scanf("%d", &Data);
+    if (Data != Noinfo)
+    {
+        //分配根结点单元，并将结点地址入队
+        BT = (BinTree)malloc(sizeof(struct TNode));
+        BT->Data = Data;
+        BT->left = BT->right = NULL;
+        AddQ(Q,BT);
+    }
+    else
+    {
+        return NULL; //第一个元素就是0，返回空树
+    }
+    while (!isempty(Q)) //Q非空
+    {
+        T = DeleteQ(Q); //从队列中取出一结点地址
+        scanf("%d",&Data);
+        if (Data == Noinfo)
+        {
+            T->left = NULL;
+        }else
+        {
+            T->left = (BinTree)malloc(sizeof(struct TNode));
+            T->left->Data = Data;
+            T->left->left = T->left->right = NULL; //初始化这个左孩子的左右孩子
+            AddQ(Q,T->left);
+        }
+        scanf("%d",&Data); //读入T的右孩子
+        if (Data == Noinfo)
+        {
+            T->right = NULL;
+        }else
+        {
+            T->right = (BinTree)malloc(sizeof(struct TNode));
+            T->right->Data = Data;
+            T->right->left = T->right->right = NULL;
+            AddQ(Q,T->right);
+        }
+    }
+    return BT;
+}
+
+/*
+树的同构：对于两棵树，如果其中一棵树可以通过若干次左右孩子互换就变成另一棵树，则称这两棵树是同构的（儿子的归属一定要对，是左右儿子则无关紧要）
 */
