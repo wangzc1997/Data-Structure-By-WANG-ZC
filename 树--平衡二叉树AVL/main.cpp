@@ -111,7 +111,7 @@ AVLTree Insert(AVLTree T, elementtype X)
     T->Height = Max(GetHeight(T->left),GetHeight(T->right)) + 1;
     return T;   
 }
-
+//左单旋的算法
 AVLTree SingleLeftRotation(AVLTree A)
 {
     /*
@@ -127,7 +127,20 @@ AVLTree SingleLeftRotation(AVLTree A)
 
     return B;
 }
-
+//右单旋的算法
+AVLTree SingleRightRotation(AVLTree A)
+{
+    /*
+    A必须要有一个右子结点B
+    将A和B做右单旋，更新AB的高度，返回新结点B    
+    */
+   AVLTree B = A->right;
+   A->right = B->left;
+   B->left = A;
+   A->Height = Max(GetHeight(A->left), GetHeight(A->right)) +1;
+   B->Height = Max(GetHeight(B->right), A->Height)+1;
+   return B;
+}
 AVLTree DoubleLeftRightRotation(AVLTree A)
 {
     /*
@@ -135,8 +148,8 @@ AVLTree DoubleLeftRightRotation(AVLTree A)
     将A,B与C做两次单旋，返回新的根结点C
     
     */
-    //将B与C做右单旋，C被返回
+    //将B与C做右单旋，C被返回   //右单旋，下去的那个 作为参数进入函数中
     A->left = SingleRightRotation(A->left);
-    //将A与C做左单旋，C被返回
+    //将A与C做左单旋，C被返回   //左单旋，下去的那个，作为参数进行函数中
     return SingleLeftRotation(A);
-}
+}   
