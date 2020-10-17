@@ -38,7 +38,7 @@ free(t);
 p = head;
 while ( p != NULL)
 {
-    对p所指结点的信息进行处理
+    //对p所指结点的信息进行处理
     p = p -> Next;
 }
 
